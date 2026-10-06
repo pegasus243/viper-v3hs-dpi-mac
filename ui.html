@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viper V3 HyperSpeed</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b0d0c;
+    --bg-grad: radial-gradient(1200px 600px at 15% -10%, #16261a 0%, transparent 60%),
+               radial-gradient(900px 500px at 110% 10%, #10211c 0%, transparent 55%);
+    --panel: #14171600;
+    --card: #151917;
+    --card-2: #1b201d;
+    --line: #272d29;
+    --text: #e8efe9;
+    --muted: #8d9a91;
+    --accent: #44d62c;
+    --accent-dim: #2f9a1f;
+    --on-accent: #07160b;
+    --danger: #ff5f56;
+    --warn: #ffbd2e;
+    --radius: 14px;
+    --shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 12px 32px -18px rgba(0,0,0,.9);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f4;
+      --bg-grad: radial-gradient(1000px 500px at 10% -10%, #e2f2e0 0%, transparent 60%);
+      --card: #ffffff;
+      --card-2: #f7f9f7;
+      --line: #e1e6e1;
+      --text: #15201a;
+      --muted: #5f6f66;
+      --accent: #1d9c0a;
+      --accent-dim: #167a08;
+      --on-accent: #ffffff;
+      --shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 28px -20px rgba(0,0,0,.3);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px 16px 64px;
+    background: var(--bg-grad), var(--bg);
+    color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  header { display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+  h1 { font-size: 21px; letter-spacing: -.01em; margin: 0 0 4px; font-weight: 650; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0; }
+  .spacer { flex: 1 1 60px; }
+
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--card); border: 1px solid var(--line);
+    padding: 7px 12px; border-radius: 999px; font-size: 13px; font-variant-numeric: tabular-nums;
+  }
+  .pill b { font-weight: 600; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+  .dot.off { background: var(--muted); }
+  .dot.bad { background: var(--danger); }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 20px; margin-bottom: 16px;
+  }
+  .card h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .07em;
+    color: var(--muted); margin: 0 0 16px; font-weight: 600;
+  }
+  .card .hint { color: var(--muted); font-size: 12.5px; margin: 14px 0 0; }
+
+  .hero { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .hero .big { font-size: 46px; font-weight: 680; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .hero .unit { color: var(--muted); font-size: 15px; }
+
+  table.stages { width: 100%; border-collapse: collapse; }
+  table.stages th {
+    text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--muted); font-weight: 600; padding: 0 10px 10px 0;
+  }
+  table.stages td { padding: 7px 10px 7px 0; vertical-align: middle; }
+  table.stages tr.active td { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+  table.stages tr.active td:first-child { box-shadow: inset 2px 0 0 var(--accent); border-radius: 9px 0 0 9px; }
+  table.stages tr.active td:last-child { border-radius: 0 9px 9px 0; }
+  .swatch {
+    width: 22px; height: 22px; border-radius: 7px; border: 1px solid rgba(255,255,255,.18);
+    padding: 0; cursor: pointer; display: block;
+  }
+  .stage-no { color: var(--muted); font-variant-numeric: tabular-nums; width: 1px; white-space: nowrap; }
+  input[type=number] {
+    width: 104px; background: var(--card-2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px;
+    font: inherit; font-variant-numeric: tabular-nums; text-align: right;
+  }
+  input[type=number]:focus-visible, select:focus-visible, button:focus-visible, input[type=range]:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  input.bad { border-color: var(--danger); }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    background: transparent; color: var(--muted); border: 1px solid var(--line);
+    border-radius: 999px; padding: 4px 9px; font: inherit; font-size: 12px; cursor: pointer;
+  }
+  .chip:hover { color: var(--text); border-color: var(--accent-dim); }
+  label.radio { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 13px; cursor: pointer; }
+  label.radio input { accent-color: var(--accent); }
+  tr.active label.radio { color: var(--text); }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; }
+  button {
+    font: inherit; border-radius: 10px; padding: 9px 15px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card-2); color: var(--text);
+  }
+  button:hover:not(:disabled) { border-color: var(--accent-dim); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 620; }
+  button.primary:hover:not(:disabled) { background: var(--accent-dim); border-color: var(--accent-dim); color: #fff; }
+  button.ghost { background: transparent; color: var(--muted); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+  .field { margin-bottom: 16px; }
+  .field:last-of-type { margin-bottom: 0; }
+  .field > span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .field > span b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .seg { display: inline-flex; background: var(--card-2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
+  .seg button { border: none; background: transparent; padding: 6px 13px; border-radius: 8px; color: var(--muted); }
+  .seg button[aria-pressed=true] { background: var(--accent); color: var(--on-accent); font-weight: 620; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+
+  #log { font: 12.5px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace; max-height: 190px; overflow: auto; margin: 0; }
+  #log div { display: flex; gap: 10px; padding: 2px 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+  #log time { color: var(--muted); flex: none; }
+  #log .err { color: var(--danger); }
+  #log .ok { color: var(--accent); }
+  #log .pre { white-space: pre-wrap; }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 20px);
+    background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow);
+    padding: 11px 18px; border-radius: 11px; font-size: 14px; max-width: min(92vw, 560px);
+    opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+  #toast.err { border-color: var(--danger); }
+  #toast.ok { border-color: var(--accent-dim); }
+  .busy { cursor: progress; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Razer Viper V3 HyperSpeed</h1>
+      <p class="sub">Récepteur 1532:00B8 — réglages écrits dans la mémoire de la souris</p>
+    </div>
+    <div class="spacer"></div>
+    <div class="pills">
+      <span class="pill"><i class="dot" id="link-dot"></i><span id="link">lecture…</span></span>
+      <span class="pill">🔋 <b id="battery">—</b><span id="charging"></span></span>
+      <span class="pill">⚡ <b id="poll-now">—</b></span>
+      <button class="ghost" id="refresh" title="Relire tous les réglages">↻ Relire</button>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>DPI courant</h2>
+    <div class="hero">
+      <span class="big" id="dpi-now">—</span>
+      <span class="unit">DPI · palier actif <b id="active-now">—</b> sur <span id="count-now">—</span></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Paliers du bouton DPI</h2>
+    <table class="stages">
+      <thead>
+        <tr><th>Couleur</th><th>Palier</th><th>DPI</th><th>Raccourcis</th><th>Actif</th></tr>
+      </thead>
+      <tbody id="stage-rows"></tbody>
+    </table>
+    <div class="row">
+      <button class="primary" id="apply">Appliquer</button>
+      <button id="revert">Annuler mes modifications</button>
+      <button class="ghost" id="restore">Restaurer la sauvegarde</button>
+    </div>
+    <p class="hint">
+      Exactement 5 paliers, de 100 à 30000 DPI. Chaque écriture est relue octet par octet ;
+      en cas d'écart, rien n'est validé. La configuration précédente est sauvegardée
+      automatiquement avant chaque modification.
+      <br>Les pastilles de couleur sont là pour <b>toi</b> : note la couleur que ta souris
+      affiche réellement pour chaque palier. Le protocole ne permet pas de changer ces
+      couleurs, seulement les valeurs DPI qu'elles désignent.
+    </p>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Récepteur</h2>
+      <div class="field">
+        <span>Taux de scrutation : <b id="poll-label">—</b></span>
+        <div class="seg" id="poll-seg">
+          <button data-hz="125">125 Hz</button>
+          <button data-hz="500">500 Hz</button>
+          <button data-hz="1000">1000 Hz</button>
+        </div>
+      </div>
+      <p class="hint">
+        Nombre de fois par seconde que le récepteur interroge la souris. 1000 Hz donne
+        le pointeur le plus réactif, 125 Hz économise la batterie. Le réglage vit dans
+        le récepteur, pas dans la souris.
+      </p>
+      <p class="hint">Liaison : interface HID 0 du récepteur · transactions relues à chaque écriture.</p>
+    </section>
+
+    <section class="card">
+      <h2>Énergie</h2>
+      <div class="field">
+        <span>Mise en veille après <b id="idle-label">—</b></span>
+        <input type="range" id="idle" min="60" max="900" step="30">
+        <div class="row" style="margin-top:10px"><button id="idle-apply">Appliquer</button></div>
+      </div>
+      <div class="field">
+        <span>Alerte batterie faible à <b id="threshold-label">—</b></span>
+        <input type="range" id="threshold" min="5" max="30" step="1">
+        <div class="row" style="margin-top:10px"><button id="threshold-apply">Appliquer</button></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Journal</h2>
+    <div id="log"></div>
+    <p class="hint" id="synapse-note"></p>
+  </section>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const PRESETS = [400, 800, 1600, 2400, 3200, 6400];
+const PALETTE = ['#ff3b30', '#ff9500', '#ffd60a', '#44d62c', '#32ade6', '#5e5ce6', '#ff2d94', '#f2f2f7'];
+let state = null;      // dernier etat lu
+let busy = false;
+let colors = {};       // palier -> couleur, purement local
+
+try { colors = JSON.parse(localStorage.getItem('stageColors') || '{}'); } catch { colors = {}; }
+
+function log(text, kind) {
+  const line = document.createElement('div');
+  const time = document.createElement('time');
+  time.textContent = new Date().toLocaleTimeString('fr-FR');
+  const body = document.createElement('span');
+  body.className = (kind || '') + ' pre';
+  body.textContent = text;
+  line.append(time, body);
+  $('log').prepend(line);
+  while ($('log').childElementCount > 60) $('log').lastElementChild.remove();
+}
+
+let toastTimer;
+function toast(text, kind) {
+  const el = $('toast');
+  el.textContent = text;
+  el.className = 'show ' + (kind || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = ''; }, 4200);
+}
+
+function setBusy(on) {
+  busy = on;
+  document.body.classList.toggle('busy', on);
+  for (const el of document.querySelectorAll('button, input')) {
+    if (el.id === 'refresh') { el.disabled = on; continue; }
+    el.disabled = on;
+  }
+}
+
+async function call(path, body) {
+  setBusy(true);
+  try {
+    const response = await fetch(path, {
+      method: body ? 'POST' : 'GET',
+      headers: body ? { 'Content-Type': 'application/json', 'X-Razer-DPI': '1' } : {},
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const data = await response.json();
+    if (!response.ok || data.error) throw new Error(data.error || `HTTP ${response.status}`);
+    return data;
+  } finally {
+    setBusy(false);
+  }
+}
+
+function renderStages() {
+  const tbody = $('stage-rows');
+  tbody.replaceChildren();
+  if (!state || !state.stages) return;
+  for (const stage of state.stages.stages) {
+    const tr = document.createElement('tr');
+    if (stage.number === state.stages.active) tr.className = 'active';
+
+    const colorCell = document.createElement('td');
+    const swatch = document.createElement('button');
+    swatch.className = 'swatch';
+    swatch.style.background = colors[stage.number] || PALETTE[(stage.number - 1) % PALETTE.length];
+    swatch.title = 'Changer la couleur notée pour ce palier';
+    swatch.onclick = () => {
+      const current = colors[stage.number] || PALETTE[(stage.number - 1) % PALETTE.length];
+      const next = PALETTE[(PALETTE.indexOf(current) + 1) % PALETTE.length];
+      colors[stage.number] = next;
+      try { localStorage.setItem('stageColors', JSON.stringify(colors)); } catch {}
+      swatch.style.background = next;
+    };
+    colorCell.append(swatch);
+
+    const noCell = document.createElement('td');
+    noCell.className = 'stage-no';
+    noCell.textContent = `n° ${stage.number}`;
+
+    const inputCell = document.createElement('td');
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = 100; input.max = 30000; input.step = 50;
+    input.value = stage.x;
+    input.dataset.stage = stage.number;
+    input.oninput = () => {
+      const value = Number(input.value);
+      input.classList.toggle('bad', !Number.isInteger(value) || value < 100 || value > 30000);
+    };
+    inputCell.append(input);
+
+    const chipCell = document.createElement('td');
+    const chips = document.createElement('div');
+    chips.className = 'chips';
+    for (const preset of PRESETS) {
+      const chip = document.createElement('button');
+      chip.className = 'chip';
+      chip.textContent = preset;
+      chip.onclick = () => { input.value = preset; input.classList.remove('bad'); };
+      chips.append(chip);
+    }
+    chipCell.append(chips);
+
+    const activeCell = document.createElement('td');
+    const label = document.createElement('label');
+    label.className = 'radio';
+    const radio = document.createElement('input');
+    radio.type = 'radio'; radio.name = 'active'; radio.value = stage.number;
+    radio.checked = stage.number === state.stages.active;
+    label.append(radio, document.createTextNode(stage.number === state.stages.active ? 'actif' : ''));
+    activeCell.append(label);
+
+    tr.append(colorCell, noCell, inputCell, chipCell, activeCell);
+    tbody.append(tr);
+  }
+}
+
+function render() {
+  const errors = state.errors || {};
+  const failed = Object.keys(errors);
+  $('link-dot').className = 'dot' + (failed.length ? (failed.length > 3 ? ' bad' : ' off') : '');
+  $('link').textContent = failed.length ? `${failed.length} réglage(s) illisible(s)` : 'souris connectée';
+
+  $('battery').textContent = state.battery ? `${state.battery.percent} %` : '—';
+  $('charging').textContent = state.charging ? ' ⚡︎' : '';
+  $('poll-now').textContent = state.poll ? `${state.poll} Hz` : '—';
+  $('poll-label').textContent = state.poll ? `${state.poll} Hz` : 'inconnu';
+  for (const button of document.querySelectorAll('#poll-seg button')) {
+    button.setAttribute('aria-pressed', String(Number(button.dataset.hz) === state.poll));
+  }
+  $('dpi-now').textContent = state.dpi ? state.dpi.x : '—';
+  $('active-now').textContent = state.stages ? state.stages.active : '—';
+  $('count-now').textContent = state.stages ? state.stages.count : '—';
+
+  if (state.idle) { $('idle').value = state.idle; $('idle-label').textContent = `${state.idle} s`; }
+  if (state.threshold) { $('threshold').value = state.threshold.percent; $('threshold-label').textContent = `${state.threshold.percent} %`; }
+
+  $('restore').disabled = !state.backup;
+  $('synapse-note').textContent = state.synapse_running
+    ? 'Attention : le service Synapse tourne — il occupe le canal de configuration et les écritures peuvent échouer. Relance l\'appli pour qu\'elle le mette en pause.'
+    : 'Service Synapse en pause le temps de la session ; il est relancé automatiquement à la fermeture de l\'appli.';
+
+  renderStages();
+  for (const [name, message] of Object.entries(errors)) log(`${name} : ${message}`, 'err');
+}
+
+async function refresh(quiet) {
+  try {
+    state = await call('/api/state');
+    render();
+    if (!quiet) log('réglages relus', 'ok');
+  } catch (error) {
+    log(`lecture impossible : ${error.message}`, 'err');
+    toast(`Lecture impossible : ${error.message}`, 'err');
+  }
+}
+
+async function send(path, body, successPrefix) {
+  try {
+    const data = await call(path, body);
+    state = data.state;
+    render();
+    log(data.message, 'ok');
+    toast((successPrefix ? successPrefix + ' — ' : '') + data.message, 'ok');
+  } catch (error) {
+    log(error.message, 'err');
+    toast(error.message, 'err');
+  }
+}
+
+$('refresh').onclick = () => refresh();
+
+$('apply').onclick = () => {
+  const inputs = [...document.querySelectorAll('#stage-rows input[type=number]')];
+  const values = inputs.map((input) => Number(input.value));
+  if (values.some((v) => !Number.isInteger(v) || v < 100 || v > 30000)) {
+    toast('Chaque palier doit être un entier de 100 à 30000 DPI.', 'err');
+    return;
+  }
+  const active = Number(document.querySelector('#stage-rows input[name=active]:checked')?.value || state.stages.active);
+  const sorted = [...values].every((v, i, a) => i === 0 || a[i - 1] <= v);
+  if (!sorted && !confirm('Tes paliers ne sont pas en ordre croissant. Le bouton DPI les parcourra dans cet ordre. Continuer ?')) return;
+  send('/api/stages', { values, active }, 'Paliers');
+};
+
+$('revert').onclick = () => { renderStages(); toast('Champs remis sur les valeurs lues dans la souris.'); };
+
+$('restore').onclick = () => {
+  if (!confirm('Restaurer la configuration sauvegardée avant ta dernière modification ?')) return;
+  send('/api/restore', {}, 'Restauration');
+};
+
+for (const button of document.querySelectorAll('#poll-seg button')) {
+  button.onclick = () => send('/api/poll', { hz: Number(button.dataset.hz) }, 'Scrutation');
+}
+$('idle').oninput = () => { $('idle-label').textContent = `${$('idle').value} s`; };
+$('idle-apply').onclick = () => send('/api/idle', { seconds: Number($('idle').value) }, 'Veille');
+$('threshold').oninput = () => { $('threshold-label').textContent = `${$('threshold').value} %`; };
+$('threshold-apply').onclick = () => send('/api/threshold', { percent: Number($('threshold').value) }, 'Alerte batterie');
+
+log('interface prête');
+refresh(true);
+setInterval(() => { if (!busy) refresh(true); }, 120000);
+</script>
+</body>
+</html>
